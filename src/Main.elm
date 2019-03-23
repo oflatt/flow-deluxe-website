@@ -58,6 +58,7 @@ view model =
       -- page buttons
       , (pagebutton "Home" model)
       ,(pagebutton "Listings" model)
+      ,(pagebutton "Game" model)
                 
       -- home page
       ,(makePage "Home" (text "hello") model)
@@ -65,6 +66,9 @@ view model =
       -- listing page
       , (makePage "Listings" (listing "../assets/placeholder.png"
                                   "Listing title" model)
+             model)
+      , (makePage "Game"
+             (text "2")
              model)
       ]
       

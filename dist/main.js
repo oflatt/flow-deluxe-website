@@ -1,13 +1,3 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Main</title>
-</head>
-
-<body>
-<div id="elm-f0111bc4e658d0f98db96260c16f7e49"></div>
-<script>
 (function(scope){
 'use strict';
 
@@ -7312,6 +7302,7 @@ var author$project$Main$view = function (model) {
 				author$project$Main$makeTitle,
 				A2(author$project$Main$pagebutton, 'Home', model),
 				A2(author$project$Main$pagebutton, 'Listings', model),
+				A2(author$project$Main$pagebutton, 'Game', model),
 				A3(
 				author$project$Main$makePage,
 				'Home',
@@ -7321,6 +7312,11 @@ var author$project$Main$view = function (model) {
 				author$project$Main$makePage,
 				'Listings',
 				A3(author$project$Main$listing, '../assets/placeholder.png', 'Listing title', model),
+				model),
+				A3(
+				author$project$Main$makePage,
+				'Game',
+				rtfeldman$elm_css$Html$Styled$text('2'),
 				model)
 			]));
 };
@@ -8063,12 +8059,3 @@ var author$project$Main$main = elm$browser$Browser$sandbox(
 	});
 _Platform_export({'Main':{'init':author$project$Main$main(
 	elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
-
-var app = Elm.Main.init({ node: document.getElementById("elm-f0111bc4e658d0f98db96260c16f7e49") });
-if (document.getElementById("elm-f0111bc4e658d0f98db96260c16f7e49"))
-{
-  document.getElementById("elm-f0111bc4e658d0f98db96260c16f7e49").innerText = 'This is a headless program, meaning there is nothing to show here.\n\nI started the program anyway though, and you can access it as `app` in the developer console.';
-}
-</script>
-</body>
-</html>

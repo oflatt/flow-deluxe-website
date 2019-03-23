@@ -5,3 +5,14 @@ repl-temp-*
 
 # emacs
 *~
+
+# rust
+src/flow-game/target
+**/*.rs.bk
+src/flow-game/Cargo.lock
+src/flow-game/bin
+src/flow-game/pkg
+src/flow-game/wasm-pack.log
+
+# node
+src/flow-game/www/node_modules
