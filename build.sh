@@ -1,10 +1,10 @@
-# copy all html files to the dist directory from source
+# copy all html files to the docs directory from source
 
-find src -maxdepth 1 -name '*.html' -exec cp {} dist/ \;
+find src -maxdepth 1 -name '*.html' -exec cp {} docs/ \;
 
 
 
-elm make src/Main.elm --output=dist/main.js
+elm make src/Main.elm --output=docs/main.js
 
 cd src/flow-game
 wasm-pack build
