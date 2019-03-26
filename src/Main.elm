@@ -1,76 +1,142 @@
 module Main exposing (main)
 
+
 import Browser
+import Browser.Navigation as Nav
 import Css exposing (..)
 import Html
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, href, src, rel)
 import Html.Styled.Events exposing (onClick, onMouseOver, onMouseLeave)
+import Url
+import Url.Builder
+import Tuple
 
 
 main : Program () Model Msg
 main =
-    Browser.sandbox
-        { view = view >> toUnstyled
+    Browser.application
+        { view = view
+        , subscriptions = subscriptions
         , update = update
         , init = initialModel
+        , onUrlChange = UrlChanged
+        , onUrlRequest = LinkClicked
         }
 
+
+        
 -- MODEL
 
 type alias PageName = String
 type alias MousePos = (Float, Float)
 
-type alias Model = {currentPage: PageName, highlightedButton: PageName}
+type alias Model = {currentPage: PageName
+                   ,highlightedButton: PageName
+                   ,urlkey : Nav.Key
+                   ,url : Url.Url
+                   ,indexurl : String}
 
-initialModel : Model
-initialModel = Model "Home" "none"
+getindexurl url =
+    let str = (Url.toString url)
+    in
+    (String.slice 0 ((String.length str)-(String.length url.path)) str)
 
+initialModel : () -> Url.Url -> Nav.Key -> (Model, Cmd Msg)
+initialModel flags url key = (Model (urlToPageName url) "none" key url (getindexurl url), Cmd.none)
+
+
+-- SUBSCRIPTIONS
+
+subscriptions : Model -> Sub msg
+subscriptions model = Sub.none
 
 -- UPDATE
 
-type Msg = ChangePage PageName | MouseOver PageName | MouseLeave PageName
+type Msg = MouseOver PageName | MouseLeave PageName | LinkClicked Browser.UrlRequest | PageChange String | UrlChanged Url.Url
 
-update : Msg -> Model -> Model
+
+changeUrl : Model -> Url.Url -> PageName -> (Model, Cmd Msg)
+changeUrl model newurl newPage =
+    ( { model | currentPage = newPage
+         ,url = newurl}
+       , Nav.pushUrl model.urlkey (Url.toString newurl)
+       )
+
+changeByName model pageName =
+    let newurl =
+            case (Url.fromString
+                      (String.append
+                           model.indexurl
+                           (Url.Builder.absolute
+                                [pageName] []))) of
+                Nothing ->
+                    model.url
+                Just url -> url
+
+    in changeUrl model newurl pageName
+
+
+urlToPageName url = url.path
+    
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = case msg of
-                       ChangePage pageName -> Model pageName model.highlightedButton
-                       MouseOver pageName -> Model model.currentPage pageName
-                       MouseLeave pageName -> if pageName == model.highlightedButton
-                                              then {model | highlightedButton = "none"}
-                                              else model
+                       LinkClicked urlRequest ->
+                           case urlRequest of
+                               Browser.Internal url ->
+                                   (changeByName model (urlToPageName url))
+                                       
+                               Browser.External href ->
+                                   ( model, Nav.load href )
 
+                       PageChange pageName -> (changeByName model pageName)
+
+                       UrlChanged url ->
+                           ((Tuple.first (changeByName model (urlToPageName url))),
+                           Cmd.none)
+                       
+                       MouseOver pageName -> ({model | highlightedButton = pageName}, Cmd.none)
+                       MouseLeave pageName -> if pageName == model.highlightedButton
+                                              then ({model | highlightedButton = "none"}, Cmd.none)
+                                              else (model, Cmd.none)
+
+                                                  
 -- VIEW
 
 pageColor = (rgb 247 247 222)
 pageBackgroundColor = (rgb 229 229 208)
 
 
-view : Model -> Html Msg
-view model =  
-  div [ ]
-      [ node "link" [rel "stylesheet"
-                    ,href "https://fonts.googleapis.com/css?family=Tangerine"][]
-      , node "link" [rel "stylesheet"
-                    ,href "https://fonts.googleapis.com/css?family=Raleway"][]
-
-       -- title
-      ,(makeTitle)
-      -- page buttons
-      , (pagebutton "Home" model)
-      ,(pagebutton "Listings" model)
-      ,(pagebutton "Game" model)
-                
-      -- home page
-      ,(makePage "Home" (text "hello") model)
-
-      -- listing page
-      , (makePage "Listings" (listing "../assets/placeholder.png"
-                                  "Listing title" model)
-             model)
-      , (makePage "Game"
-             (text "2")
-             model)
-      ]
+view : Model -> Browser.Document Msg
+view model =
+    {title = "flow deluxe"
+    , body =
+        [toUnstyled
+             (div [ ]
+                  [ node "link" [rel "stylesheet"
+                                ,href "https://fonts.googleapis.com/css?family=Tangerine"][]
+                  , node "link" [rel "stylesheet"
+                                ,href "https://fonts.googleapis.com/css?family=Raleway"][]
+                      
+                  -- title
+                  ,(makeTitle)
+                  -- page buttons
+                  , (pagebutton "Home" model)
+                  ,(pagebutton "Listings" model)
+                  ,(pagebutton "Game" model)
+                      
+                  -- home page
+                  ,(makePage "Home" (text "hello") model)
+                      
+                  -- listing page
+                  , (makePage "Listings" (listing "./assets/placeholder.png"
+                                              "Listing title" model)
+                         model)
+                  , (makePage "Game"
+                         (text "2")
+                         model)
+                  ])]
+    }
       
 
 makePage pageName content model =
@@ -106,7 +172,8 @@ makeTitle = div
                      ]
                       [text "Deluxe"]]]
                 
-                
+
+pagebutton : PageName -> Model -> Html Msg
 pagebutton pageName model =
     let buttonPageColor =
             if pageName == model.currentPage
@@ -114,7 +181,7 @@ pagebutton pageName model =
             else pageBackgroundColor
     in
     button [
-         onClick (ChangePage pageName)
+         onClick (PageChange pageName)
         ,onMouseOver (MouseOver pageName)
         ,onMouseLeave (MouseLeave pageName)
         ,css
