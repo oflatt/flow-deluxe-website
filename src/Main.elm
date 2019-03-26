@@ -97,7 +97,7 @@ update msg model = case msg of
 
                        PageChange pageName ->
                            let result = (changeByName model pageName)
-                           in log "pagechange" result
+                           in result
                                         
 
                        UrlChanged url ->
@@ -149,7 +149,7 @@ view model =
       
 
 makePage pageName content model =
-    if pageName == log "current" model.currentPage then
+    if pageName == model.currentPage then
         div [css[display block
                 ,backgroundColor pageColor]]
             [content]

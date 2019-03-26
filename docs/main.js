@@ -5277,7 +5277,6 @@ var author$project$Main$changeByName = F2(
 		return A3(author$project$Main$changeUrl, model, newurl, pageName);
 	});
 var elm$browser$Browser$Navigation$load = _Browser_load;
-var elm$core$Debug$log = _Debug_log;
 var author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5298,7 +5297,7 @@ var author$project$Main$update = F2(
 			case 'PageChange':
 				var pageName = msg.a;
 				var result = A2(author$project$Main$changeByName, model, pageName);
-				return A2(elm$core$Debug$log, 'pagechange', result);
+				return result;
 			case 'UrlChanged':
 				var url = msg.a;
 				return _Utils_Tuple2(
@@ -7339,9 +7338,7 @@ var rtfeldman$elm_css$Css$block = {display: rtfeldman$elm_css$Css$Structure$Comp
 var rtfeldman$elm_css$Css$display = rtfeldman$elm_css$Css$prop1('display');
 var author$project$Main$makePage = F3(
 	function (pageName, content, model) {
-		return _Utils_eq(
-			pageName,
-			A2(elm$core$Debug$log, 'current', model.currentPage)) ? A2(
+		return _Utils_eq(pageName, model.currentPage) ? A2(
 			rtfeldman$elm_css$Html$Styled$div,
 			_List_fromArray(
 				[
