@@ -77,8 +77,11 @@ changeByName model pageName =
     in changeUrl model newurl pageName
 
 
-urlToPageName url = url.path
-    
+urlToPageName url =
+    if url.path == "" then
+        "Home"
+    else
+        url.path
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = case msg of
                        LinkClicked urlRequest ->

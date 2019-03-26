@@ -4502,8 +4502,9 @@ var author$project$Main$getindexurl = function (url) {
 		elm$core$String$length(str) - elm$core$String$length(url.path),
 		str);
 };
+var elm$core$Basics$eq = _Utils_equal;
 var author$project$Main$urlToPageName = function (url) {
-	return url.path;
+	return (url.path === '') ? 'Home' : url.path;
 };
 var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
@@ -4581,7 +4582,6 @@ var elm$core$Array$compressNodes = F2(
 			}
 		}
 	});
-var elm$core$Basics$eq = _Utils_equal;
 var elm$core$Tuple$first = function (_n0) {
 	var x = _n0.a;
 	return x;
