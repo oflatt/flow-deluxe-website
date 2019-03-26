@@ -4504,7 +4504,11 @@ var author$project$Main$getindexurl = function (url) {
 };
 var elm$core$Basics$eq = _Utils_equal;
 var author$project$Main$urlToPageName = function (url) {
-	return (url.path === '') ? 'Home' : url.path;
+	return (url.path === '') ? 'Home' : A3(
+		elm$core$String$slice,
+		1,
+		elm$core$String$length(url.path),
+		url.path);
 };
 var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
@@ -5273,6 +5277,7 @@ var author$project$Main$changeByName = F2(
 		return A3(author$project$Main$changeUrl, model, newurl, pageName);
 	});
 var elm$browser$Browser$Navigation$load = _Browser_load;
+var elm$core$Debug$log = _Debug_log;
 var author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5292,7 +5297,8 @@ var author$project$Main$update = F2(
 				}
 			case 'PageChange':
 				var pageName = msg.a;
-				return A2(author$project$Main$changeByName, model, pageName);
+				var result = A2(author$project$Main$changeByName, model, pageName);
+				return A2(elm$core$Debug$log, 'pagechange', result);
 			case 'UrlChanged':
 				var url = msg.a;
 				return _Utils_Tuple2(
@@ -7326,31 +7332,28 @@ var rtfeldman$elm_css$Css$rgb = F3(
 		};
 	});
 var author$project$Main$pageColor = A3(rtfeldman$elm_css$Css$rgb, 247, 247, 222);
-var rtfeldman$elm_css$Css$block = {display: rtfeldman$elm_css$Css$Structure$Compatible, value: 'block'};
-var rtfeldman$elm_css$Css$display = rtfeldman$elm_css$Css$prop1('display');
-var rtfeldman$elm_css$Css$none = {backgroundImage: rtfeldman$elm_css$Css$Structure$Compatible, blockAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, display: rtfeldman$elm_css$Css$Structure$Compatible, hoverCapability: rtfeldman$elm_css$Css$Structure$Compatible, inlineAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, keyframes: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNone: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNoneOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, listStyleType: rtfeldman$elm_css$Css$Structure$Compatible, listStyleTypeOrPositionOrImage: rtfeldman$elm_css$Css$Structure$Compatible, none: rtfeldman$elm_css$Css$Structure$Compatible, outline: rtfeldman$elm_css$Css$Structure$Compatible, pointerDevice: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, resize: rtfeldman$elm_css$Css$Structure$Compatible, scriptingSupport: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationLine: rtfeldman$elm_css$Css$Structure$Compatible, textTransform: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, transform: rtfeldman$elm_css$Css$Structure$Compatible, updateFrequency: rtfeldman$elm_css$Css$Structure$Compatible, value: 'none'};
-var author$project$Main$pagedisplay = F2(
-	function (pagename, model) {
-		return _Utils_eq(model.currentPage, pagename) ? rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$block) : rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$none);
-	});
 var rtfeldman$elm_css$Css$backgroundColor = function (c) {
 	return A2(rtfeldman$elm_css$Css$property, 'background-color', c.value);
 };
+var rtfeldman$elm_css$Css$block = {display: rtfeldman$elm_css$Css$Structure$Compatible, value: 'block'};
+var rtfeldman$elm_css$Css$display = rtfeldman$elm_css$Css$prop1('display');
 var author$project$Main$makePage = F3(
 	function (pageName, content, model) {
-		return A2(
+		return _Utils_eq(
+			pageName,
+			A2(elm$core$Debug$log, 'current', model.currentPage)) ? A2(
 			rtfeldman$elm_css$Html$Styled$div,
 			_List_fromArray(
 				[
 					rtfeldman$elm_css$Html$Styled$Attributes$css(
 					_List_fromArray(
 						[
-							A2(author$project$Main$pagedisplay, pageName, model),
+							rtfeldman$elm_css$Css$display(rtfeldman$elm_css$Css$block),
 							rtfeldman$elm_css$Css$backgroundColor(author$project$Main$pageColor)
 						]))
 				]),
 			_List_fromArray(
-				[content]));
+				[content])) : rtfeldman$elm_css$Html$Styled$text('');
 	});
 var rtfeldman$elm_css$Css$center = rtfeldman$elm_css$Css$prop1('center');
 var rtfeldman$elm_css$Css$color = function (c) {
@@ -7550,6 +7553,7 @@ var rtfeldman$elm_css$Css$borderTopLeftRadius = rtfeldman$elm_css$Css$prop1('bor
 var rtfeldman$elm_css$Css$borderTopRightRadius = rtfeldman$elm_css$Css$prop1('border-top-right-radius');
 var rtfeldman$elm_css$Css$marginRight = rtfeldman$elm_css$Css$prop1('margin-right');
 var rtfeldman$elm_css$Css$marginTop = rtfeldman$elm_css$Css$prop1('margin-top');
+var rtfeldman$elm_css$Css$none = {backgroundImage: rtfeldman$elm_css$Css$Structure$Compatible, blockAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, cursor: rtfeldman$elm_css$Css$Structure$Compatible, display: rtfeldman$elm_css$Css$Structure$Compatible, hoverCapability: rtfeldman$elm_css$Css$Structure$Compatible, inlineAxisOverflow: rtfeldman$elm_css$Css$Structure$Compatible, keyframes: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNone: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNoneOrMinMaxDimension: rtfeldman$elm_css$Css$Structure$Compatible, lengthOrNumberOrAutoOrNoneOrContent: rtfeldman$elm_css$Css$Structure$Compatible, listStyleType: rtfeldman$elm_css$Css$Structure$Compatible, listStyleTypeOrPositionOrImage: rtfeldman$elm_css$Css$Structure$Compatible, none: rtfeldman$elm_css$Css$Structure$Compatible, outline: rtfeldman$elm_css$Css$Structure$Compatible, pointerDevice: rtfeldman$elm_css$Css$Structure$Compatible, pointerEvents: rtfeldman$elm_css$Css$Structure$Compatible, resize: rtfeldman$elm_css$Css$Structure$Compatible, scriptingSupport: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationLine: rtfeldman$elm_css$Css$Structure$Compatible, textTransform: rtfeldman$elm_css$Css$Structure$Compatible, touchAction: rtfeldman$elm_css$Css$Structure$Compatible, transform: rtfeldman$elm_css$Css$Structure$Compatible, updateFrequency: rtfeldman$elm_css$Css$Structure$Compatible, value: 'none'};
 var rtfeldman$elm_css$Css$outline = rtfeldman$elm_css$Css$prop1('outline');
 var rtfeldman$elm_css$Css$solid = {borderStyle: rtfeldman$elm_css$Css$Structure$Compatible, textDecorationStyle: rtfeldman$elm_css$Css$Structure$Compatible, value: 'solid'};
 var rtfeldman$elm_css$Html$Styled$button = rtfeldman$elm_css$Html$Styled$node('button');

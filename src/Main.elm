@@ -12,6 +12,8 @@ import Url
 import Url.Builder
 import Tuple
 
+import Debug exposing (log)
+
 
 main : Program () Model Msg
 main =
@@ -81,7 +83,8 @@ urlToPageName url =
     if url.path == "" then
         "Home"
     else
-        url.path
+        (String.slice 1 (String.length url.path) url.path)
+         
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = case msg of
                        LinkClicked urlRequest ->
@@ -92,7 +95,10 @@ update msg model = case msg of
                                Browser.External href ->
                                    ( model, Nav.load href )
 
-                       PageChange pageName -> (changeByName model pageName)
+                       PageChange pageName ->
+                           let result = (changeByName model pageName)
+                           in log "pagechange" result
+                                        
 
                        UrlChanged url ->
                            ((Tuple.first (changeByName model (urlToPageName url))),
@@ -143,9 +149,12 @@ view model =
       
 
 makePage pageName content model =
-    div [css[(pagedisplay pageName model)
-            ,backgroundColor pageColor]]
-        [content]
+    if pageName == log "current" model.currentPage then
+        div [css[display block
+                ,backgroundColor pageColor]]
+            [content]
+    else
+        text ""
       
 makeTitle = div
             [css [
