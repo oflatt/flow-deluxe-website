@@ -1,21 +1,26 @@
 module Main exposing (main)
 
-
+import Task
 import Browser
+import Browser.Events
+import Browser.Dom
 import Browser.Navigation as Nav
 import Css exposing (..)
 import Html
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, href, src, rel)
 import Html.Styled.Events exposing (onClick, onMouseOver, onMouseLeave)
+import Html.Attributes exposing (id)
 import Url
 import Url.Builder
 import Tuple
 
+import Canvas
+
 import Debug exposing (log)
 
 
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
     Browser.application
         { view = view
@@ -37,25 +42,44 @@ type alias Model = {currentPage: PageName
                    ,highlightedButton: PageName
                    ,urlkey : Nav.Key
                    ,url : Url.Url
-                   ,indexurl : String}
+                   ,indexurl : String
+                   ,windowWidth : Int
+                   ,windowHeight : Int}
 
 getindexurl url =
     let str = (Url.toString url)
     in
     (String.slice 0 ((String.length str)-(String.length url.path)) str)
 
-initialModel : () -> Url.Url -> Nav.Key -> (Model, Cmd Msg)
-initialModel flags url key = (Model (urlToPageName url) "none" key url (getindexurl url), Cmd.none)
+
+type alias Flags = {innerWindowWidth : Int,
+                   innerWindowHeight : Int,
+                   outerWindowWidth : Int,
+                   outerWindowHeight : Int}
+
+
+    
+initialModel : Flags -> Url.Url -> Nav.Key -> (Model, Cmd Msg)
+initialModel flags url key = ((Model
+                                   (urlToPageName url)
+                                   "none"
+                                   key url
+                                   (getindexurl url)
+                                   flags.innerWindowWidth
+                                   flags.innerWindowHeight), Cmd.none)
 
 
 -- SUBSCRIPTIONS
 
-subscriptions : Model -> Sub msg
-subscriptions model = Sub.none
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Browser.Events.onResize WindowResize
 
+
+                      
 -- UPDATE
 
-type Msg = MouseOver PageName | MouseLeave PageName | LinkClicked Browser.UrlRequest | PageChange String | UrlChanged Url.Url
+type Msg = MouseOver PageName | MouseLeave PageName | LinkClicked Browser.UrlRequest | PageChange String | UrlChanged Url.Url | WindowResize Int Int
 
 
 changeUrl : Model -> Url.Url -> PageName -> (Model, Cmd Msg)
@@ -87,6 +111,10 @@ urlToPageName url =
          
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = case msg of
+                       WindowResize newWidth newHeight ->
+                           ({model | windowWidth = newWidth,
+                                                  windowHeight = newHeight},
+                                Cmd.none)
                        LinkClicked urlRequest ->
                            case urlRequest of
                                Browser.Internal url ->
@@ -142,10 +170,17 @@ view model =
                                               "Listing title" model)
                          model)
                   , (makePage "Game"
-                         (text "2")
+                         (gameCanvas model)
                          model)
                   ])]
     }
+
+
+gameCanvas model =
+    fromUnstyled
+        (Canvas.toHtml (model.windowWidth-30, model.windowHeight-30)
+             [id "gamecanvas"]
+             [])
       
 
 makePage pageName content model =

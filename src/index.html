@@ -43,7 +43,10 @@
     
     var app = Elm.Main.init({
     node: document.getElementById('elm'),
-     <!--flags: "Home"-->
+    flags: {innerWindowWidth : window.innerWidth,
+    innerWindowHeight : window.innerHeight,
+    outerWindowWidth : window.outerWidth,
+    outerWindowHeight : window.outerHeight}
     });
   </script>
 

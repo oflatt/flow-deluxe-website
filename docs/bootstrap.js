@@ -55,8 +55,8 @@
 /******/ 		"../pkg/flow_game_bg.wasm": function() {
 /******/ 			return {
 /******/ 				"./flow_game": {
-/******/ 					"__wbg_alert_743c32ec4bd090a3": function(p0i32,p1i32) {
-/******/ 						return installedModules["../pkg/flow_game.js"].exports["__wbg_alert_743c32ec4bd090a3"](p0i32,p1i32);
+/******/ 					"__wbg_canvasfill_67f5411822b01f89": function() {
+/******/ 						return installedModules["../pkg/flow_game.js"].exports["__wbg_canvasfill_67f5411822b01f89"]();
 /******/ 					}
 /******/ 				}
 /******/ 			};
@@ -156,7 +156,7 @@
 /******/ 				promises.push(installedWasmModuleData);
 /******/ 			else {
 /******/ 				var importObject = wasmImportObjects[wasmModuleId]();
-/******/ 				var req = fetch(__webpack_require__.p + "" + {"../pkg/flow_game_bg.wasm":"538186a78a6faf63fa0e"}[wasmModuleId] + ".module.wasm");
+/******/ 				var req = fetch(__webpack_require__.p + "" + {"../pkg/flow_game_bg.wasm":"3548cf53292e1d53e7ac"}[wasmModuleId] + ".module.wasm");
 /******/ 				var promise;
 /******/ 				if(importObject instanceof Promise && typeof WebAssembly.compileStreaming === 'function') {
 /******/ 					promise = Promise.all([WebAssembly.compileStreaming(req), importObject]).then(function(items) {

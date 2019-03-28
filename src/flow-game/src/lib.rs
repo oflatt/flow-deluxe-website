@@ -12,12 +12,20 @@ cfg_if::cfg_if! {
     }
 }
 
+
+
 #[wasm_bindgen]
 extern {
     fn alert(s: &str);
 }
 
+#[wasm_bindgen(module = "/www/rust-canvas.js")]
+extern "C" {
+    fn canvas_fill();
+}
+
 #[wasm_bindgen]
 pub fn greet() {
-    alert("Hello, flow-game!");
+    //alert("yay");
+    canvas_fill();
 }
