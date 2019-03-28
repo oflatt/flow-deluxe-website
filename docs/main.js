@@ -4504,7 +4504,7 @@ var author$project$Main$getindexurl = function (url) {
 };
 var elm$core$Basics$eq = _Utils_equal;
 var author$project$Main$urlToPageName = function (url) {
-	return (url.path === '') ? 'Home' : A3(
+	return (url.path === '/') ? 'Home' : A3(
 		elm$core$String$slice,
 		1,
 		elm$core$String$length(url.path),

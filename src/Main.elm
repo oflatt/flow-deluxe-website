@@ -104,7 +104,7 @@ changeByName model pageName =
 
 
 urlToPageName url =
-    if url.path == "" then
+    if url.path == "/" then
         "Home"
     else
         (String.slice 1 (String.length url.path) url.path)

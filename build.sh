@@ -1,3 +1,8 @@
+
+# clear the docs folder
+echo "--------- clearing docs"
+rm -rf docs/*
+
 # copy all html files to the docs directory from source
 echo "--------- copying html files"
 find src -maxdepth 1 -name '*.html' -exec cp {} docs/ \;
