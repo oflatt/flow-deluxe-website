@@ -1,21 +1,36 @@
-import * as wasm from "flow-game";
+import { GameState } from "flow-game";
 import {set_canvas} from "./rust-canvas";
 
+const game_state = GameState.initial_game_state();
+
+
+const render_starter = (time_stamp) =>{
+  main_loop(game_state);
+}
 
 
 
-const renderLoop = () => {
-  var canvas = document.getElementById("gamecanvas");
+
+const main_loop = () => {
+  const canvas = document.getElementById("gamecanvas");
   if(canvas == null){
-    requestAnimationFrame(renderLoop);
+    requestAnimationFrame(function(time_stamp){
+      main_loop();
+    });
     return;
   }
-  set_canvas(canvas);
+  const ctx = canvas.getContext('2d');
   
-  wasm.greet();
-  requestAnimationFrame(renderLoop);
+  game_state.game_loop(ctx, canvas.width, canvas.height);
+  
+  requestAnimationFrame(function(time_stamp){
+    main_loop();
+  });
 };
 
-requestAnimationFrame(renderLoop);
+
+
+
+requestAnimationFrame(render_starter);
 
 
