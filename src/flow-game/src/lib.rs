@@ -1,9 +1,11 @@
+use std::cmp;
+
 extern crate image;
 use image::{ImageBuffer, Pixel, Rgba};
 
 
 mod utils;
-mod FluidGrid;
+mod fluid_grid;
 
 //use cfg_if::cfg_if;
 use wasm_bindgen::prelude::*;
@@ -50,7 +52,7 @@ extern {
 #[wasm_bindgen]
 pub struct GameState {
     screen : ImageBuffer<Rgba<u8>, Vec<u8>>,
-    grid : FluidGrid::FluidGrid
+    grid : fluid_grid::FluidGrid
 }
 
 
@@ -64,22 +66,23 @@ fn draw_grid(screen: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, density_vector: &Vec<f
     
     //log!("{}", &vector_width.to_string());
 
+    // TODO: make it scale better when the width is less than the width needed for the grid
     let start_x_index;
     let end_x_index;
-    if vector_width*scale > screen.width() {
+   /* if vector_width*scale > screen.width() {
         // pick start and end indexes so that it only draws on screen
         x_offset_left = (vector_width*scale - screen.width())/2;
         x_offset_right = 0;
         
         start_x_index = x_offset_left/scale;
         end_x_index = (screen.width()+x_offset_left-scale)/scale;
-    }else{
-        x_offset_right = (screen.width() - vector_width*scale)/2;
-        x_offset_left = 0;
+    }*/
+    x_offset_right = (screen.width() - vector_width*scale)/2;
+    x_offset_left = 0;
         
-        start_x_index = 0;
-        end_x_index = vector_width;
-    }
+    start_x_index = 0;
+    end_x_index = vector_width;
+    
     
 
     for density_y in 0..vector_height{
@@ -89,7 +92,7 @@ fn draw_grid(screen: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, density_vector: &Vec<f
                     screen.put_pixel(density_x*scale+x_offset_right-x_offset_left+pixel_x,
                                      density_y*scale+pixel_y,
                                      Rgba::from_channels(10,
-                                                         density_vector[(density_x+density_y*vector_width) as usize] as u8,
+                                                         cmp::min((density_vector[(density_x+density_y*vector_width) as usize]*255.0) as u8, 255),
                                                          0,
                                                          255));
                 }
@@ -99,12 +102,43 @@ fn draw_grid(screen: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, density_vector: &Vec<f
 }
 
 
+fn screen_to_grid_coordinates(game_state: &GameState, mouse_x: f64, mouse_y: f64) -> (f64, f64){
+    let screen = &game_state.screen;
+    let vector_width = game_state.grid.width;
+    let vector_height = game_state.grid.height;
+
+    let scale = screen.height() / vector_height;
+    let x_offset_right;
+    let x_offset_left;
+    x_offset_right = (screen.width() - vector_width*scale)/2;
+    x_offset_left = 0;
+
+    let mut grid_mouse_x = (mouse_x-(x_offset_right+x_offset_left) as f64)/(scale as f64);
+    let mut grid_mouse_y = mouse_y/(scale as f64);
+    if grid_mouse_x > vector_width as f64{
+        grid_mouse_x = (vector_width as f64)-0.001;
+    }
+    if grid_mouse_y > vector_height as f64{
+        grid_mouse_y = (vector_height as f64)-0.001;
+    }
+    if grid_mouse_x < 0.0{
+        grid_mouse_x = 0.0;
+    }
+    if grid_mouse_y < 0.0{
+        grid_mouse_y = 0.0;
+    }
+    
+    // inverse of the draw_grid function for drawing the grid to the screen
+    return (grid_mouse_x,
+            grid_mouse_y);
+}
+
 #[wasm_bindgen]
 impl GameState {
     pub fn initial_game_state() -> GameState{
         utils::set_panic_hook();
         GameState{screen: ImageBuffer::new(10, 10),
-                  grid: FluidGrid::empty_grid(20, 20)}
+                  grid: fluid_grid::empty_grid(40, 40)}
     }
     
     pub fn game_loop(&mut self,
@@ -117,16 +151,24 @@ impl GameState {
             self.screen = ImageBuffer::new(width, height);
         }
 
+        fluid_grid::get_updated(&mut self.grid);
+
 
         draw_grid(&mut self.screen, &self.grid.density, self.grid.width, self.grid.height);
-        
-        self.screen.put_pixel(10, 10, Rgba::from_channels(255, 0, 0, 255));
-        
+                
 
         let screen = ImageData::new_with_u8_clamped_array_and_sh(Clamped(&mut self.screen), width, height)?;
 
         
         ctx.put_image_data(&screen, 0.0, 0.0)
+    }
+
+    pub fn handle_events(&mut self, mouse_pressedp: bool, mouse_x:f64, mouse_y:f64){
+        if mouse_pressedp{
+            let (grid_mouse_x, grid_mouse_y) = screen_to_grid_coordinates(&*self, mouse_x, mouse_y);
+            log!("mouse click mouse_x: {},mouse_y: {}", grid_mouse_x, grid_mouse_y);
+            fluid_grid::mouse_move(&mut self.grid, grid_mouse_x, grid_mouse_y, grid_mouse_x, grid_mouse_y);
+        }
     }
 }
 
