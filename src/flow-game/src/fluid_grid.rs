@@ -56,7 +56,7 @@ pub fn empty_grid(grid_width: u32, grid_height: u32) -> FluidGrid{
 
 pub fn get_updated(grid: &mut FluidGrid){
     density_step(&mut grid.density, &mut grid.density_0, &grid.x_vel, &grid.y_vel,
-                 0.1, 0.0002)
+                 0.005, 0.02)
 }
 
 fn density_step(density: &mut Vec<f64>, density_prev: &mut Vec<f64>,

@@ -138,14 +138,28 @@ impl GameState {
     pub fn initial_game_state() -> GameState{
         utils::set_panic_hook();
         GameState{screen: ImageBuffer::new(10, 10),
-                  grid: fluid_grid::empty_grid(40, 40)}
+                  grid: fluid_grid::empty_grid(200, 200)}
     }
-    
+
+    // time is in seconds
     pub fn game_loop(&mut self,
                      ctx: &CanvasRenderingContext2d,
                      width: u32,
-                     height: u32,) -> Result<(), JsValue>{
+                     height: u32,
+                     mouse_pressedp: bool, mouse_x:f64,
+                     mouse_y:f64, last_time: f64,
+                     current_time:f64) -> Result<(), JsValue>{
 
+        log!("dt: {}", current_time-last_time);
+
+        // handle events
+        if mouse_pressedp{
+            let (grid_mouse_x, grid_mouse_y) = screen_to_grid_coordinates(&*self, mouse_x, mouse_y);
+       
+            fluid_grid::mouse_move(&mut self.grid, grid_mouse_x, grid_mouse_y, grid_mouse_x, grid_mouse_y);
+        }
+
+        
         // resize the screen if needed
         if self.screen.width() != width || self.screen.height() != height {
             self.screen = ImageBuffer::new(width, height);
@@ -163,12 +177,5 @@ impl GameState {
         ctx.put_image_data(&screen, 0.0, 0.0)
     }
 
-    pub fn handle_events(&mut self, mouse_pressedp: bool, mouse_x:f64, mouse_y:f64){
-        if mouse_pressedp{
-            let (grid_mouse_x, grid_mouse_y) = screen_to_grid_coordinates(&*self, mouse_x, mouse_y);
-            log!("mouse click mouse_x: {},mouse_y: {}", grid_mouse_x, grid_mouse_y);
-            fluid_grid::mouse_move(&mut self.grid, grid_mouse_x, grid_mouse_y, grid_mouse_x, grid_mouse_y);
-        }
-    }
 }
 
