@@ -55,26 +55,17 @@
 /******/ 		"../pkg/flow_game_bg.wasm": function() {
 /******/ 			return {
 /******/ 				"./flow_game": {
-/******/ 					"__wbindgen_object_drop_ref": function(p0i32) {
-/******/ 						return installedModules["../pkg/flow_game.js"].exports["__wbindgen_object_drop_ref"](p0i32);
+/******/ 					"__wbg_canvasfill_67f5411822b01f89": function(p0f64,p1f64,p2f64,p3f64,p4i32,p5i32) {
+/******/ 						return installedModules["../pkg/flow_game.js"].exports["__wbg_canvasfill_67f5411822b01f89"](p0f64,p1f64,p2f64,p3f64,p4i32,p5i32);
 /******/ 					},
-/******/ 					"__wbindgen_string_new": function(p0i32,p1i32) {
-/******/ 						return installedModules["../pkg/flow_game.js"].exports["__wbindgen_string_new"](p0i32,p1i32);
+/******/ 					"__wbg_canvasellipse_5a68d9af9515043c": function(p0f64,p1f64,p2f64,p3f64) {
+/******/ 						return installedModules["../pkg/flow_game.js"].exports["__wbg_canvasellipse_5a68d9af9515043c"](p0f64,p1f64,p2f64,p3f64);
 /******/ 					},
-/******/ 					"__widl_f_put_image_data_CanvasRenderingContext2D": function(p0i32,p1i32,p2f64,p3f64,p4i32) {
-/******/ 						return installedModules["../pkg/flow_game.js"].exports["__widl_f_put_image_data_CanvasRenderingContext2D"](p0i32,p1i32,p2f64,p3f64,p4i32);
-/******/ 					},
-/******/ 					"__widl_f_new_with_u8_clamped_array_and_sh_ImageData": function(p0i32,p1i32,p2i32,p3i32,p4i32) {
-/******/ 						return installedModules["../pkg/flow_game.js"].exports["__widl_f_new_with_u8_clamped_array_and_sh_ImageData"](p0i32,p1i32,p2i32,p3i32,p4i32);
-/******/ 					},
-/******/ 					"__widl_f_log_1_": function(p0i32) {
-/******/ 						return installedModules["../pkg/flow_game.js"].exports["__widl_f_log_1_"](p0i32);
+/******/ 					"__wbg_iskeypressed_6781798ce64925c0": function(p0i32,p1i32) {
+/******/ 						return installedModules["../pkg/flow_game.js"].exports["__wbg_iskeypressed_6781798ce64925c0"](p0i32,p1i32);
 /******/ 					},
 /******/ 					"__wbindgen_throw": function(p0i32,p1i32) {
 /******/ 						return installedModules["../pkg/flow_game.js"].exports["__wbindgen_throw"](p0i32,p1i32);
-/******/ 					},
-/******/ 					"__wbindgen_rethrow": function(p0i32) {
-/******/ 						return installedModules["../pkg/flow_game.js"].exports["__wbindgen_rethrow"](p0i32);
 /******/ 					}
 /******/ 				}
 /******/ 			};
@@ -174,7 +165,7 @@
 /******/ 				promises.push(installedWasmModuleData);
 /******/ 			else {
 /******/ 				var importObject = wasmImportObjects[wasmModuleId]();
-/******/ 				var req = fetch(__webpack_require__.p + "" + {"../pkg/flow_game_bg.wasm":"59c52e0bcffcac4e6f3c"}[wasmModuleId] + ".module.wasm");
+/******/ 				var req = fetch(__webpack_require__.p + "" + {"../pkg/flow_game_bg.wasm":"f0459272c1fee82a6d63"}[wasmModuleId] + ".module.wasm");
 /******/ 				var promise;
 /******/ 				if(importObject instanceof Promise && typeof WebAssembly.compileStreaming === 'function') {
 /******/ 					promise = Promise.all([WebAssembly.compileStreaming(req), importObject]).then(function(items) {

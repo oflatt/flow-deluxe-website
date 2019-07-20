@@ -3,9 +3,10 @@ use std::cmp;
 extern crate image;
 use image::{ImageBuffer, Pixel, Rgba};
 
+extern crate slotmap;
+use slotmap::{SlotMap, new_key_type};
 
 mod utils;
-mod fluid_grid;
 
 //use cfg_if::cfg_if;
 use wasm_bindgen::prelude::*;
@@ -42,139 +43,90 @@ extern {
 }
 
 
-// not used- instead using ctx.put_image_data
-//#[wasm_bindgen(module = "/www/rust-canvas.js")]
-//extern "C" {
-//    fn canvas_fill(x:f64,y:f64,w:f64,h:f64, fillString:String);
-//    fn canvas_ellipse(x:f64,y:f64,w:f64,h:f64);
-//}
+
+#[wasm_bindgen(module = "/www/rust-canvas.js")]
+extern "C" {
+    fn canvas_ellipse(x: f64, y: f64, w: f64, h: f64);
+    fn is_key_pressed(s: &str) -> bool;
+    fn canvas_fill(x:f64,y:f64,w:f64,h:f64, fillString:String);
+}
+
+new_key_type! {
+    struct EntityKey;
+}
+
+#[derive(Copy, Clone)]
+struct Player {
+    controller: u32,
+}
+
+#[derive(Copy, Clone)]
+struct Position {
+    xpos: f64,
+    ypos: f64,
+    radius: f64,
+}
 
 #[wasm_bindgen]
 pub struct GameState {
     screen : ImageBuffer<Rgba<u8>, Vec<u8>>,
-    grid : fluid_grid::FluidGrid
+    players : SlotMap<EntityKey, Option<Player>>,
+    orbs : SlotMap<EntityKey, Option<i32>>,
+    positions : SlotMap<EntityKey, Option<Position>>,
 }
 
+fn add_player(game_state: &mut GameState, player: Player, position: Position) -> EntityKey {
+    game_state.players.insert(Some(player));
+    game_state.orbs.insert(None);
+    game_state.positions.insert(Some(position))
+}
 
-// libhoare disabled- would check that the density vector is of the correct dimensions
-// #[invariant="density_vector.len() == vector_width*vector_height"]
-fn draw_grid(screen: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, density_vector: &Vec<f64>, vector_width: u32, vector_height: u32){
-    // scale by the max possible integer that you can fit vertically
-    let scale = screen.height() / vector_height;
-    let x_offset_right;
-    let x_offset_left;
-    
-    //log!("{}", &vector_width.to_string());
-
-    // TODO: make it scale better when the width is less than the width needed for the grid
-    let start_x_index;
-    let end_x_index;
-   /* if vector_width*scale > screen.width() {
-        // pick start and end indexes so that it only draws on screen
-        x_offset_left = (vector_width*scale - screen.width())/2;
-        x_offset_right = 0;
-        
-        start_x_index = x_offset_left/scale;
-        end_x_index = (screen.width()+x_offset_left-scale)/scale;
-    }*/
-    x_offset_right = (screen.width() - vector_width*scale)/2;
-    x_offset_left = 0;
-        
-    start_x_index = 0;
-    end_x_index = vector_width;
-    
-    
-
-    for density_y in 0..vector_height{
-        for density_x in start_x_index..end_x_index{
-            for pixel_y in 0..scale{
-                for pixel_x in 0..scale{
-                    screen.put_pixel(density_x*scale+x_offset_right-x_offset_left+pixel_x,
-                                     density_y*scale+pixel_y,
-                                     Rgba::from_channels(10,
-                                                         cmp::min((density_vector[(density_x+density_y*vector_width) as usize]*255.0) as u8, 255),
-                                                         0,
-                                                         255));
-                }
-            }
+fn draw_positions(game_state: &GameState) {
+    for (key, position) in game_state.positions.iter() {
+        match position {
+            Some(pos) => canvas_ellipse(pos.xpos, pos.ypos, pos.radius * 2.0, pos.radius * 2.0),
+            None => (),
         }
     }
-}
-
-
-fn screen_to_grid_coordinates(game_state: &GameState, mouse_x: f64, mouse_y: f64) -> (f64, f64){
-    let screen = &game_state.screen;
-    let vector_width = game_state.grid.width;
-    let vector_height = game_state.grid.height;
-
-    let scale = screen.height() / vector_height;
-    let x_offset_right;
-    let x_offset_left;
-    x_offset_right = (screen.width() - vector_width*scale)/2;
-    x_offset_left = 0;
-
-    let mut grid_mouse_x = (mouse_x-(x_offset_right+x_offset_left) as f64)/(scale as f64);
-    let mut grid_mouse_y = mouse_y/(scale as f64);
-    if grid_mouse_x > vector_width as f64{
-        grid_mouse_x = (vector_width as f64)-0.001;
-    }
-    if grid_mouse_y > vector_height as f64{
-        grid_mouse_y = (vector_height as f64)-0.001;
-    }
-    if grid_mouse_x < 0.0{
-        grid_mouse_x = 0.0;
-    }
-    if grid_mouse_y < 0.0{
-        grid_mouse_y = 0.0;
-    }
-    
-    // inverse of the draw_grid function for drawing the grid to the screen
-    return (grid_mouse_x,
-            grid_mouse_y);
 }
 
 #[wasm_bindgen]
 impl GameState {
     pub fn initial_game_state() -> GameState{
         utils::set_panic_hook();
-        GameState{screen: ImageBuffer::new(10, 10),
-                  grid: fluid_grid::empty_grid(200, 200)}
+        
+        let mut game_state = GameState{screen: ImageBuffer::new(10, 10),
+                                       players: SlotMap::with_key(),
+                                       orbs: SlotMap::with_key(),
+                                       positions: SlotMap::with_key(),};
+        let p1 = add_player(&mut game_state, Player{controller: 1},
+                            Position{xpos: 0.25, ypos: 0.5, radius: 0.05});
+        let p2 = add_player(&mut game_state, Player{controller: 2},
+                            Position{xpos: 0.75, ypos: 0.5, radius: 0.05});
+        
+        game_state
     }
 
     // time is in seconds
     pub fn game_loop(&mut self,
                      ctx: &CanvasRenderingContext2d,
-                     width: u32,
-                     height: u32,
+                     pixel_width: u32,
+                     pixel_height: u32,
                      mouse_pressedp: bool, mouse_x:f64,
                      mouse_y:f64, last_time: f64,
-                     current_time:f64) -> Result<(), JsValue>{
+                     current_time:f64){
 
-        log!("dt: {}", current_time-last_time);
+        let screen_width: f64 = (pixel_width as f64) / (pixel_height as f64);
+        
+        // log!("dt: {}", current_time-last_time);
+
+        canvas_fill(0.0, 0.0, screen_width, 1.0, "rgb(255,255,255)".to_string());
+        draw_positions(&self);
 
         // handle events
-        if mouse_pressedp{
-            let (grid_mouse_x, grid_mouse_y) = screen_to_grid_coordinates(&*self, mouse_x, mouse_y);
-       
-            fluid_grid::mouse_move(&mut self.grid, grid_mouse_x, grid_mouse_y, grid_mouse_x, grid_mouse_y);
+        if is_key_pressed("w"){
+            canvas_ellipse(0.5, 0.5, 0.5, 0.5);
         }
-
-        
-        // resize the screen if needed
-        if self.screen.width() != width || self.screen.height() != height {
-            self.screen = ImageBuffer::new(width, height);
-        }
-
-        fluid_grid::get_updated(&mut self.grid);
-
-
-        draw_grid(&mut self.screen, &self.grid.density, self.grid.width, self.grid.height);
-                
-
-        let screen = ImageData::new_with_u8_clamped_array_and_sh(Clamped(&mut self.screen), width, height)?;
-
-        
-        ctx.put_image_data(&screen, 0.0, 0.0)
     }
 
 }
